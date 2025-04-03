@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  nodeseek:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodeseek-auto-signin
+    restart: unless-stopped
+    volumes:
+      - ./config.py:/app/config.py
+      - ./logs:/app/logs
+      - ./screenshots:/app/screenshots
+      - ./records:/app/records
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - LANG=zh_CN.UTF-8
+      - LC_ALL=zh_CN.UTF-8
+      - PAGE_LOAD_TIMEOUT=30
+      - SCRIPT_TIMEOUT=30
+      - CHROME_ARGS=--no-sandbox --disable-dev-shm-usage --disable-gpu --start-maximized --disable-features=VizDisplayCompositor --font-render-hinting=none --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling --memory-pressure-off --disable-hang-monitor --renderer-process-limit=1 --disable-background-networking
+    # 设置资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+    # 如果遇到共享内存问题，取消下面注释启用共享内存卷
+    # shm_size: 2gb
+    # 如果需要使用不同的启动命令，取消下面的注释
+    # command: python main.py --schedule-only 

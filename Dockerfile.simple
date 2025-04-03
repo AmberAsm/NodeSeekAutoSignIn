@@ -1,0 +1,48 @@
+# 使用预装了Chrome的Python镜像
+FROM joyzoursky/python-chromedriver:3.9-selenium
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置时区为亚洲/上海
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 配置中文支持
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    locales \
+    && echo "zh_CN.UTF-8 UTF-8" > /etc/locale.gen \
+    && locale-gen \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置环境变量
+ENV PYTHONIOENCODING=utf-8
+ENV PYTHONUNBUFFERED=1
+ENV LANG=zh_CN.UTF-8
+ENV LC_ALL=zh_CN.UTF-8
+ENV PAGE_LOAD_TIMEOUT=30
+ENV SCRIPT_TIMEOUT=30
+
+# Chrome启动参数
+ENV CHROME_ARGS="--no-sandbox --disable-dev-shm-usage --disable-gpu --start-maximized --disable-features=VizDisplayCompositor --font-render-hinting=none --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling --memory-pressure-off --disable-hang-monitor --renderer-process-limit=1 --disable-background-networking"
+
+# 创建必要的目录
+RUN mkdir -p Logs Screenshots Records
+
+# 复制项目文件
+COPY requirements.txt .
+
+# 安装项目依赖
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 复制项目文件
+COPY . .
+
+# 确保在Docker环境中运行时Chrome始终使用无头模式
+RUN if [ -f config.py ]; then \
+    sed -i "s/'headless': False/'headless': True/g" config.py || echo "无法修改headless配置"; \
+    fi
+
+# 容器启动命令
+CMD ["python", "main.py"] 
