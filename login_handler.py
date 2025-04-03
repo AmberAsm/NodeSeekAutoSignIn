@@ -102,6 +102,10 @@ class LoginHandler:
                 return True
             else:
                 logger.warning("Cookie登录失败，可能已过期")
+                # 删除过期的Cookie文件
+                if os.path.exists(self.cookie_path):
+                    os.remove(self.cookie_path)
+                    logger.info(f"已删除过期的Cookie文件: {self.cookie_path}")
                 return False
 
         except Exception as e:

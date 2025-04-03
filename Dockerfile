@@ -71,7 +71,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 RUN echo "验证Chrome版本:" && google-chrome --version
 
 # 创建必要的目录
-RUN mkdir -p Logs Screenshots Records
+RUN mkdir -p logs screenshots
 
 # 复制项目依赖文件
 COPY requirements.txt .
